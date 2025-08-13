@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 @RestController
@@ -18,16 +19,19 @@ public class ReactiveProgrammingExampleController {
 
     // 1~9까지 출력하는 api
     @GetMapping("/onenine/list")
-    public List<Integer> produceOneToNine() {
-        List<Integer> sink = new ArrayList<>();
-        for (int i = 0; i < 9; i++) {
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
+    public Mono<List<Integer>> produceOneToNine() {
+        return Mono.defer(() -> {
+            List<Integer> sink = new ArrayList<>();
+            for (int i = 0; i < 9; i++) {
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                }
+                System.out.println(Thread.currentThread().getName());
+                sink.add(i + 1);
             }
-            sink.add(i + 1);
-        }
-        return sink;
+            return Mono.just(sink);
+        }).subscribeOn(Schedulers.parallel());
     }
 
     // 리액티브 스트림 구현체 Flux, Mono를 사용하여 발생하는 데이터를 바로바로 리액티브하게 처리
