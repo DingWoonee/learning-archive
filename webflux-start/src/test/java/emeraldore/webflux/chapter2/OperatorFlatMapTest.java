@@ -105,6 +105,13 @@ public class OperatorFlatMapTest {
     (당연한 소리지만, 이때도 블로킹 요소는 알아서 처리해야 한다.)
      */
 
+    @Test
+    void fluxToFlux() {
+        Flux.just(Flux.just(1,2,3), Flux.just(4,5,6), Flux.just(7,8,9))
+                .flatMap(data -> data)
+                .subscribe(data -> System.out.println("fluxToFlux data = " + data));
+    }
+
     private Mono<String> callWebClient(String request, long delay) {
         return Mono.defer(() -> {
                     try {
