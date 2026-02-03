@@ -16,6 +16,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import sample.testcafekiosk.spring.domain.BaseEntity;
 import sample.testcafekiosk.spring.domain.orderproduct.OrderProduct;
+import sample.testcafekiosk.spring.domain.product.Product;
 
 @Getter
 @Entity
@@ -28,7 +29,7 @@ public class Order extends BaseEntity {
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    private OrderStatus status;
+    private OrderStatus orderStatus;
 
     private int totalPrice;
 
@@ -36,4 +37,23 @@ public class Order extends BaseEntity {
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderProduct> orderProducts;
+
+    private Order(List<Product> products, LocalDateTime registeredDateTime) {
+        this.orderStatus = OrderStatus.INIT;
+        this.totalPrice = calculateTotalPrice(products);
+        this.registeredDateTime = registeredDateTime;
+        this.orderProducts = products.stream()
+                .map(product -> new OrderProduct(this, product))
+                .toList();
+    }
+
+    public static Order create(List<Product> products, LocalDateTime registeredDateTime) {
+        return new Order(products, registeredDateTime);
+    }
+
+    private static int calculateTotalPrice(List<Product> products) {
+        return products.stream()
+                .mapToInt(Product::getPrice)
+                .sum();
+    }
 }
