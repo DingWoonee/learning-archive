@@ -11,6 +11,5 @@ public class Ex0RefMain {
 	public static void main(String[] args) {
 		hello("Hello Java");
 		hello("Hello Spring");
-
 	}
 }
